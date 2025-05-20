@@ -1,0 +1,399 @@
+services:
+
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
+    container_name: namenode
+    hostname: namenode
+    environment:
+      - CLUSTER_NAME=test
+      - HADOOP_HOME=/opt/hadoop-2.7.4
+      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - HDFS_CONF_dfs_namenode_name_dir=file:///hadoop/dfs/name
+      - HDFS_CONF_dfs_webhdfs_enabled=true
+      - YARN_CONF_yarn_nodemanager_aux_services=mapreduce_shuffle
+      - YARN_CONF_yarn_nodemanager_aux___services_mapreduce___shuffle_class=org.apache.hadoop.mapred.ShuffleHandler
+      - MAPRED_CONF_mapreduce_framework_name=yarn
+      
+    volumes:
+      - ./base/hdfs/namenode:/hadoop/dfs/name
+      - ./base/mapreduce_examples:/opt/mapreduce_examples
+      - ./datasets:/datasets
+
+    ports:
+      - "50070:50070"
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.5
+
+  datanode1:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
+    container_name: datanode1
+    hostname: datanode1
+    environment:
+      - HADOOP_HOME=/opt/hadoop-2.7.4
+      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+      - SERVICE_PRECONDITION=namenode:50070
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - HDFS_CONF_dfs_datanode_data_dir=file:///hadoop/dfs/data
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - YARN_CONF_yarn_nodemanager_aux_services=mapreduce_shuffle
+      - YARN_CONF_yarn_nodemanager_aux___services_mapreduce___shuffle_class=org.apache.hadoop.mapred.ShuffleHandler
+      - MAPRED_CONF_mapreduce_framework_name=yarn
+    volumes:
+      - ./base/hdfs/datanode1:/hadoop/dfs/data
+    depends_on:
+      - namenode
+    ports:
+      - "50075:50075"
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.6
+
+  datanode2:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
+    container_name: datanode2
+    hostname: datanode2
+    environment:
+      - HADOOP_HOME=/opt/hadoop-2.7.4
+      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+      - SERVICE_PRECONDITION=namenode:50070
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - HDFS_CONF_dfs_datanode_data_dir=file:///hadoop/dfs/data
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - YARN_CONF_yarn_nodemanager_aux_services=mapreduce_shuffle
+      - YARN_CONF_yarn_nodemanager_aux___services_mapreduce___shuffle_class=org.apache.hadoop.mapred.ShuffleHandler
+      - MAPRED_CONF_mapreduce_framework_name=yarn
+    volumes:
+      - ./base/hdfs/datanode2:/hadoop/dfs/data
+    depends_on:
+      - namenode
+    ports:
+      - "50080:50075"
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.7
+
+  datanode3:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
+    container_name: datanode3
+    hostname: datanode3
+    environment:
+      - HADOOP_HOME=/opt/hadoop-2.7.4
+      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+      - SERVICE_PRECONDITION=namenode:50070
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - HDFS_CONF_dfs_datanode_data_dir=file:///hadoop/dfs/data
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - YARN_CONF_yarn_nodemanager_aux_services=mapreduce_shuffle
+      - YARN_CONF_yarn_nodemanager_aux___services_mapreduce___shuffle_class=org.apache.hadoop.mapred.ShuffleHandler
+      - MAPRED_CONF_mapreduce_framework_name=yarn
+    volumes:
+      - ./base/hdfs/datanode3:/hadoop/dfs/data
+    depends_on:
+      - namenode
+    ports:
+      - "50085:50075"
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.8
+
+  resourcemanager:
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop2.7.4-java8
+    container_name: resourcemanager
+    hostname: resourcemanager
+    environment:
+      
+      - CLUSTER_NAME=test
+      - HADOOP_HOME=/opt/hadoop-2.7.4
+      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - YARN_CONF_yarn_log_aggregation_enable=true
+      - YARN_CONF_yarn_log_server_url=http://historyserver:19888/jobhistory/logs
+      - YARN_CONF_yarn_nodemanager_remote_app_log_dir=/app-logs
+      - YARN_CONF_yarn_nodemanager_aux_services=mapreduce_shuffle
+      - YARN_CONF_yarn_nodemanager_aux___services_mapreduce___shuffle_class=org.apache.hadoop.mapred.ShuffleHandler
+      - MAPRED_CONF_mapreduce_framework_name=yarn
+      
+    volumes:
+      - ./base/app-logs:/app-logs
+    depends_on:
+      - namenode
+    ports:
+      - "8088:8088"  # ResourceManager Web UI only
+      # Do NOT expose 8030 on the host!
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.27
+
+  nodemanager:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop2.7.4-java8
+    container_name: nodemanager
+    hostname: nodemanager
+    environment:
+      - CLUSTER_NAME=test
+      - HADOOP_HOME=/opt/hadoop-2.7.4
+      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - YARN_CONF_yarn_log_aggregation_enable=true
+      - YARN_CONF_yarn_nodemanager_remote_app_log_dir=/app-logs
+      - YARN_CONF_yarn_nodemanager_aux_services=mapreduce_shuffle
+      - YARN_CONF_yarn_nodemanager_aux___services_mapreduce___shuffle_class=org.apache.hadoop.mapred.ShuffleHandler
+      - MAPRED_CONF_mapreduce_framework_name=yarn
+      - SERVICE_PRECONDITION=resourcemanager:8088
+    volumes:
+      - ./base/app-logs:/app-logs
+    depends_on:
+      - namenode
+      - resourcemanager
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.30
+
+  historyserver:
+    image: bde2020/hadoop-historyserver:2.0.0-hadoop2.7.4-java8
+    container_name: historyserver
+    hostname: historyserver
+    environment:
+      - CLUSTER_NAME=test
+      - HADOOP_HOME=/opt/hadoop-2.7.4
+      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - MAPREDUCE_JOBHISTORY_DONE_DIR=/mr-history/done
+      - MAPREDUCE_JOBHISTORY_INTERMEDIATE_DONE_DIR=/mr-history/tmp
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+      - YARN_CONF_yarn_log_server_url=http://historyserver:19888/jobhistory/logs
+      - YARN_CONF_yarn_nodemanager_aux_services=mapreduce_shuffle
+      - YARN_CONF_yarn_nodemanager_aux___services_mapreduce___shuffle_class=org.apache.hadoop.mapred.ShuffleHandler
+      - MAPRED_CONF_mapreduce_framework_name=yarn
+    volumes:
+      - ./base/app-logs:/app-logs
+    depends_on:
+      - namenode
+    ports:
+      - "19888:19888"  # JobHistoryServer Web UI
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.28
+  zookeeper:
+    image: fjardim/zookeeper
+    container_name: zookeeper
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    volumes:
+      - ./base/zookeeper:/opt/zookeeper-3.4.6/data
+    deploy:
+      resources:
+        limits:
+          memory: 500m
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.14
+  kafka:
+    image: fjardim/kafka
+    container_name: kafka
+    hostname: kafka
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./base/kafka:/kafka/kafka-logs-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    deploy:
+      resources:
+        limits:
+          memory: 500m
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.15
+  kafkamanager:
+    image: fjardim/kafkamanager
+    container_name: kafkamanager
+    hostname: kafkamanager
+    environment: 
+      ZK_HOSTS: zookeeper:2181
+    ports:
+      - 9000:9000
+    depends_on:
+      - kafka
+    deploy:
+      resources:
+        limits:
+          memory: 200m
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.20
+  hue:
+    image: fjardim/hue
+    hostname: hue
+    container_name: hue
+    dns: 8.8.8.8
+    ports:
+    - "8888:8888"
+    volumes:
+      - ./base/hue/hue-overrides.ini:/usr/share/hue/desktop/conf/z-hue.ini
+    depends_on:
+      - "database"
+    deploy:
+      resources:
+        limits:
+          memory: 500m
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.12
+  
+  database:
+    image: fjardim/mysql
+    container_name: database
+    hostname: database
+    ports:
+        - "33061:3306"
+    deploy:
+      resources:
+        limits:
+          memory: 500m
+    command: mysqld --innodb-flush-method=O_DSYNC --innodb-use-native-aio=OFF --init-file /data/application/init.sql
+    volumes:
+        - ./base/mysql/data:/var/lib/mysql
+        - ./base/mysql/init.sql:/data/application/init.sql
+    environment:
+        MYSQL_ROOT_PASSWORD: secret
+        MYSQL_DATABASE: hue
+        MYSQL_USER: root
+        MYSQL_PASSWORD: secret
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.13
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: metastore_db
+      POSTGRES_USER: hive
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.9
+
+  metastore:
+    image: apache/hive:4.0.1
+    container_name: metastore
+    depends_on:
+      - postgres
+    environment:
+      SERVICE_NAME: metastore
+      DB_DRIVER: postgres
+      SERVICE_OPTS: >-
+        -Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver
+        -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://postgres:5432/metastore_db
+        -Djavax.jdo.option.ConnectionUserName=hive
+        -Djavax.jdo.option.ConnectionPassword=password
+    volumes:
+      - ./base/hive/jars/postgres.jar:/opt/hive/lib/postgres.jar
+    ports:
+      - "9083:9083"
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.10
+
+  hive-server:
+    image: apache/hive:4.0.1
+    container_name: hive-server
+    depends_on:
+      - metastore
+    environment:
+      SERVICE_NAME: hiveserver2
+      IS_RESUME: true
+      SERVICE_OPTS: >-
+        -Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver
+        -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://postgres:5432/metastore_db
+        -Djavax.jdo.option.ConnectionUserName=hive
+        -Djavax.jdo.option.ConnectionPassword=password
+        -Dhive.metastore.uris=thrift://metastore:9083
+    volumes:
+      - ./base/hive/jars/postgres.jar:/opt/hive/lib/postgres.jar
+      
+    ports:
+      - "10000:10000"
+      - "10002:10002"
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.11      
+
+  jupyter-spark:
+    image: fjardim/jupyter-spark
+    hostname: jupyter-spark
+    container_name: jupyter-spark
+    command: notebook
+    env_file:
+      - ./base/jupyter/jupyter.env
+    ports:
+      - 8889:8889
+      - 4040:4040
+      - 4041:4041
+      - 4042:4042
+      - 4043:4043
+    volumes:
+       - ./base/notebooks:/mnt/notebooks/
+    environment:
+       SPARK_MASTER: local[*]
+       JUPYTER_PORT: 8889
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.24
+        
+  flink-jobmanager:
+    image: flink:1.18-scala_2.12
+    container_name: flink-jobmanager
+    ports:
+      - "8085:8081"  # Use host port 8085 instead of 8081
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.25
+
+  flink-taskmanager:
+    image: flink:1.18-scala_2.12
+    container_name: flink-taskmanager
+    depends_on:
+      - flink-jobmanager
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+    networks:
+      net_pet:
+        ipv4_address: 172.27.1.26
+networks:
+  net_pet:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.27.0.0/16
+volumes:
+  postgres_data:
