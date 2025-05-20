@@ -4,8 +4,6 @@ A lightweight, easy-to-use Hadoop stack for local development and testing.
 This project uses Docker Compose to spin up a minimal, production-style big data cluster on your machine—including Hadoop, Hive, HBase, Kafka, Spark, Flink, Hue, Jupyter, and more.
 Perfect for students, engineers, and anyone learning distributed data systems.
 
----
-
 ## Features
 
 * Hadoop HDFS and multiple DataNodes
@@ -16,8 +14,6 @@ Perfect for students, engineers, and anyone learning distributed data systems.
 * Flink (JobManager/TaskManager)
 * Pre-configured PostgreSQL and MySQL databases for Hive and Hue
 * Minimal configuration required
-
----
 
 ## Services
 
@@ -39,15 +35,12 @@ Perfect for students, engineers, and anyone learning distributed data systems.
 | flink-jobmanager  | Flink JobManager                      | 8085         |
 | flink-taskmanager | Flink TaskManager                     | -            |
 
----
-
 ## Prerequisites
 
 * [Docker Desktop](https://www.docker.com/products/docker-desktop) (or Docker Engine)
+* Datasets from Google Drive (see [Datasets](#datasets) section)
 
 **Recommended:** At least 8GB RAM (the full stack runs multiple containers)
-
----
 
 ## Getting Started
 
@@ -55,24 +48,32 @@ Perfect for students, engineers, and anyone learning distributed data systems.
 
 ```bash
 git clone https://github.com/datatweets/hadoop-lite-docker-v2.0.git
-cd hadoop-lite-docker
+cd hadoop-lite-docker-v2.0
 ```
 
----
+### 2. Datasets
 
-### 2. Directory Structure
+**IMPORTANT:** Download required datasets BEFORE starting the cluster:
+
+1. Download ALL files from:
+   https://drive.google.com/drive/folders/1Kx8gjPe2tS9LGGj5qg1aszFAc0_DhR1V
+
+2. Place files directly in the `datasets` folder (no subfolders)
+
+The Docker containers mount this folder as a volume. Without these files, exercises won't work properly.
+
+### 3. Directory Structure
 
 ```text
-hadoop-lite-docker/
-  ├── base/
-  ├── docker-compose.yml
+hadoop-lite-docker-v2.0/
+  ├── base/              # Base configuration files
+  ├── datasets/          # Place downloaded datasets here
+  ├── docker-compose.yml # Main configuration file
   ├── README.md
-  └── ... (supporting config and scripts)
+  └── ...                # Supporting config and scripts
 ```
 
----
-
-### 3. Start the Cluster
+### 4. Start the Cluster
 
 ```bash
 docker compose up -d
@@ -85,9 +86,7 @@ docker compose up -d
   docker compose ps
   ```
 
----
-
-### 4. Access the Services
+### 5. Access the Services
 
 | Service       | URL/Address                                      | Notes                      |
 | ------------- | ------------------------------------------------ | -------------------------- |
@@ -97,9 +96,7 @@ docker compose up -d
 | **KafkaMgr**  | [http://localhost:9000](http://localhost:9000)   | Kafka Manager              |
 | **Flink UI**  | [http://localhost:8085](http://localhost:8085)   | Flink Dashboard            |
 
----
-
-### 5. Stop and Remove the Cluster
+### 6. Stop and Remove the Cluster
 
 To stop the cluster:
 
@@ -113,28 +110,21 @@ To remove all data (start fresh), add the `-v` flag:
 docker compose down -v
 ```
 
----
-
-### 6. Customization
+### 7. Customization
 
 * Adjust service resources in `docker-compose.yml` as needed (e.g., lower memory for smaller systems).
 * To add/remove components, comment out the relevant sections in the `docker-compose.yml` file.
-
----
 
 ## Troubleshooting
 
 * Make sure no other services are running on the exposed ports (8888, 50070, 5432, etc.).
 * On the first run, some services (like Hive or Hue) may take a minute or two to become fully available.
 * For low-resource environments, consider running only essential containers (comment out extras in the compose file).
-
----
+* If services fail to start, verify that you've downloaded all required datasets to the `datasets` folder.
 
 ## License
 
 MIT License (see [LICENSE](LICENSE) file)
-
----
 
 ## Credits
 
