@@ -59,7 +59,7 @@ Now, create a directory structure on your local machine to organize your Kafka c
 
 ```bash
 # Create a directory for your Kafka Python code
-mkdir -p base/kafka/code
+mkdir -p base/kafka-scripts/
 ```
 
 This directory will store our Python scripts before we copy them to the Docker container.
@@ -237,10 +237,10 @@ Now, copy your Python scripts from your local machine to the Docker container:
 
 ```bash
 # Copy the producer script
-docker cp base/kafka/code/kafka-producer.py jupyter-spark:/mnt/python/kafka/
+docker cp base/kafka-script/kafka-producer.py jupyter-spark:/mnt/python/kafka/
 
 # Copy the consumer script
-docker cp base/kafka/code/kafka-consumer.py jupyter-spark:/mnt/python/kafka/
+docker cp base/kafka-script/kafka-consumer.py jupyter-spark:/mnt/python/kafka/
 ```
 
 You should see a confirmation message like:
