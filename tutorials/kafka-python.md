@@ -91,7 +91,7 @@ You should see "test-topic" in the list of available topics.
 
 ## Step 5: Creating the Kafka Producer Script
 
-Open VS Code and create a new file called `kafka-producer.py` in the `base/kafka/code` directory with the following content:
+Open VS Code and create a new file called `kafka-producer.py` in the `base/kafka-scripts` directory with the following content:
 
 ```python
 from confluent_kafka import Producer
